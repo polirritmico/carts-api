@@ -18,7 +18,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CartResponse {
     private Long id;
+    private Long customer;
+    private String status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private LocalDateTime deletedAt;
 }
