@@ -80,14 +80,6 @@ public class CartController {
                 .body(res);
     }
 
-    // @PutMapping("/{id}")
-    // @Operation(summary = "Replace an existing cart", description = "Replaces an existing cart record matching the
-    // id.")
-    // public ResponseEntity<CartResponse> replaceCart(@PathVariable Long id, @Valid @RequestBody CartUpdateRequest req)
-    // {
-    //     return ResponseEntity.ok(service.replaceCart(id, req));
-    // }
-
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete an existing cart", description = "Delete a cart matching id record from the database.")
     public ResponseEntity<Void> deleteCart(@PathVariable Long id) {
@@ -102,5 +94,11 @@ public class CartController {
     public ResponseEntity<Void> deleteCartItems(@PathVariable Long cartId) {
         service.deleteAllCartItems(cartId);
         return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{cartId}/items/{itemId}")
+    @Operation(summary = "Remove an item from the cart", description = "Deletes a specific item from the cart.")
+    public ResponseEntity<CartResponse> deleteCartItem(@PathVariable Long cartId, @PathVariable Long itemId) {
+        return ResponseEntity.ok(service.deleteCartItem(cartId, itemId));
     }
 }

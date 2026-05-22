@@ -52,6 +52,17 @@ public class DtoModelMapper {
                 .build();
     }
 
+    public CartResponse toCartResponse(Cart cart) {
+        return CartResponse.builder()
+                .id(cart.getId())
+                .customer(cart.getCustomer())
+                .status(cart.getStatus().name())
+                .createdAt(cart.getCreatedAt())
+                .updatedAt(cart.getUpdatedAt())
+                .items(cart.getItems().stream().map(this::toCartItemResponse).toList())
+                .build();
+    }
+
     public Cart cartFromCreationRequest(CartCreationRequest req) {
         return Cart.builder()
                 .customer(req.getCustomerId())

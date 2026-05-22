@@ -10,6 +10,7 @@ import cl.duoc.carts.dto.request.CartCreationRequest;
 import cl.duoc.carts.dto.request.CartItemCreationRequest;
 import cl.duoc.carts.dto.response.CartResponse;
 import cl.duoc.carts.dto.response.NonDetailsCartResponse;
+import cl.duoc.carts.exception.CartItemNotFoundException;
 import cl.duoc.carts.exception.CartNotFoundException;
 import cl.duoc.carts.exception.CustomerCartNotFoundException;
 import cl.duoc.carts.mapper.DtoModelMapper;
@@ -92,5 +93,15 @@ public class CartService {
         Cart cart = cartRepo.findById(id).orElseThrow(() -> new CartNotFoundException(id));
         cart.getItems().clear();
         cart.setUpdatedAt(LocalDateTime.now());
+    }
+
+    @Transactional
+    public CartResponse deleteCartItem(Long cartId, Long itemId) {
+        logRequest("Starting deleteCartItems with cart id: " + cartId + " and item id: " + itemId);
+        Cart cart = cartRepo.findById(cartId).orElseThrow(() -> new CartNotFoundException(cartId));
+        if (!cart.getItems().removeIf(item -> item.getId().equals(itemId))) {
+            throw new CartItemNotFoundException(cartId, itemId);
+        }
+        return mapper.toCartResponse(cart);
     }
 }
