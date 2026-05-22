@@ -14,6 +14,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,5 +29,19 @@ public class CartController {
     @Operation(summary = "List all carts", description = "Retrieves a full list of all recorded carts in the system.")
     public ResponseEntity<List<CartResponse>> findAllCarts() {
         return ResponseEntity.ok(service.findAll());
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Find cart by ID", description = "Retrieves a specific cart using its unique identifier.")
+    public ResponseEntity<CartResponse> findCart(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findById(id));
+    }
+
+    @GetMapping("/customer/{id}")
+    @Operation(
+            summary = "Find cart by the customer ID",
+            description = "Retrieves a specific cart using its customer unique identifier.")
+    public ResponseEntity<List<CartResponse>> findCustomerCart(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findByCustomer(id));
     }
 }
