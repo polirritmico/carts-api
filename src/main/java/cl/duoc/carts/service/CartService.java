@@ -8,6 +8,7 @@ package cl.duoc.carts.service;
 
 import cl.duoc.carts.dto.request.CartCreationRequest;
 import cl.duoc.carts.dto.request.CartItemCreationRequest;
+import cl.duoc.carts.dto.request.CartItemUpdateRequest;
 import cl.duoc.carts.dto.response.CartItemResponse;
 import cl.duoc.carts.dto.response.CartResponse;
 import cl.duoc.carts.dto.response.NonDetailsCartResponse;
@@ -83,6 +84,21 @@ public class CartService {
         cart.getItems().add(mapper.cartItemFromCreationRequest(cart, req));
         cart.setUpdatedAt(LocalDateTime.now());
         return mapper.toCartResponse(cartRepo.saveAndFlush(cart), cart.getItems());
+    }
+
+    @Transactional
+    public CartResponse updateItem(Long cartId, Long itemId, CartItemUpdateRequest req) {
+        logRequest("Starting updateItem with cart id: " + cartId);
+        Cart cart = cartRepo.findById(cartId).orElseThrow(() -> new CartNotFoundException(cartId));
+        CartItem item = itemRepo.findByIdAndCartId(itemId, cartId)
+                .orElseThrow(() -> new CartItemNotFoundException(itemId, cartId));
+        cart.setUpdatedAt(LocalDateTime.now());
+
+        item.setProduct(req.getProductId());
+        item.setQuantity(req.getQuantity());
+        item.setPrice(req.getPrice());
+
+        return mapper.toCartResponse(cart);
     }
 
     @Transactional
