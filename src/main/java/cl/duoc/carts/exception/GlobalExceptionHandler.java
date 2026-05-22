@@ -33,8 +33,9 @@ public class GlobalExceptionHandler {
                                 (prevErr, newErr) -> prevErr + ", " + newErr)));
     }
 
-    @ExceptionHandler({CartNotFoundException.class, ResourceNotFoundException.class})
-    public ResponseEntity<ApiErrorResponse> handleNotFound(CartNotFoundException ex, HttpServletRequest req) {
+    @ExceptionHandler({CustomerCartNotFoundException.class, CartNotFoundException.class, ResourceNotFoundException.class
+    })
+    public ResponseEntity<ApiErrorResponse> handleNotFound(RuntimeException ex, HttpServletRequest req) {
         log.error("Resource not found at {}: {}", req.getRequestURI(), ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiErrorResponse.builder()
