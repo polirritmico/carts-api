@@ -81,7 +81,16 @@ public class CartService {
 
     @Transactional
     public void deleteCart(Long id) {
+        logRequest("Starting deleteCart with cart id: " + id);
         Cart cart = cartRepo.findById(id).orElseThrow(() -> new CartNotFoundException(id));
         cartRepo.delete(cart);
+    }
+
+    @Transactional
+    public void deleteAllCartItems(Long id) {
+        logRequest("Starting deleteAllCartItems with cart id: " + id);
+        Cart cart = cartRepo.findById(id).orElseThrow(() -> new CartNotFoundException(id));
+        cart.getItems().clear();
+        cart.setUpdatedAt(LocalDateTime.now());
     }
 }

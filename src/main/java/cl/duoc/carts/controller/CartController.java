@@ -94,4 +94,13 @@ public class CartController {
         service.deleteCart(id);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/{cartId}/items")
+    @Operation(
+            summary = "Delete all items of a cart",
+            description = "Delete all items on a matching cart id record from the database.")
+    public ResponseEntity<Void> deleteCartItems(@PathVariable Long cartId) {
+        service.deleteAllCartItems(cartId);
+        return ResponseEntity.noContent().build();
+    }
 }
