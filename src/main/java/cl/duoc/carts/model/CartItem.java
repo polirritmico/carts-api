@@ -30,12 +30,12 @@ public class CartItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, name = "product_id")
-    private Long product;
-
     @ManyToOne
     @JoinColumn(name = "cart_id", nullable = false)
     private Cart cart;
+
+    @Column(nullable = false, name = "product_id")
+    private Long product;
 
     @Column(nullable = false)
     private Integer quantity;

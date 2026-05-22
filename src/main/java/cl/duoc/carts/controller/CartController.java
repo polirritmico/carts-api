@@ -7,7 +7,9 @@
 package cl.duoc.carts.controller;
 
 import cl.duoc.carts.dto.request.CartCreationRequest;
+import cl.duoc.carts.dto.request.CartItemCreationRequest;
 import cl.duoc.carts.dto.response.CartResponse;
+import cl.duoc.carts.dto.response.NonDetailsCartResponse;
 import cl.duoc.carts.service.CartService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -16,6 +18,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,7 +36,7 @@ public class CartController {
 
     @GetMapping
     @Operation(summary = "List all carts", description = "Retrieves a full list of all recorded carts in the system.")
-    public ResponseEntity<List<CartResponse>> findAllCarts() {
+    public ResponseEntity<List<NonDetailsCartResponse>> findAllCarts() {
         return ResponseEntity.ok(service.findAll());
     }
 
@@ -56,12 +59,39 @@ public class CartController {
             summary = "Create a new cart",
             description = "Creates a new cart record, replacing any existing customer cart.")
     @ApiResponse(responseCode = "201", description = "Cart created successfully")
-    public ResponseEntity<CartResponse> createCart(@Valid @RequestBody CartCreationRequest req) {
-        CartResponse res = service.createCart(req);
+    public ResponseEntity<NonDetailsCartResponse> createCart(@Valid @RequestBody CartCreationRequest req) {
+        NonDetailsCartResponse res = service.createCart(req);
         return ResponseEntity.created(ServletUriComponentsBuilder.fromCurrentRequest()
                         .path("{cartId}")
                         .buildAndExpand(res.getId())
                         .toUri())
                 .body(res);
+    }
+
+    @PostMapping("/{cartId}/items")
+    @Operation(summary = "Add items to the cart", description = "")
+    public ResponseEntity<CartResponse> addItem(
+            @PathVariable Long cartId, @Valid @RequestBody CartItemCreationRequest req) {
+        CartResponse res = service.addItem(cartId, req);
+        return ResponseEntity.created(ServletUriComponentsBuilder.fromCurrentRequest()
+                        .path("{cartId}")
+                        .buildAndExpand(res.getId())
+                        .toUri())
+                .body(res);
+    }
+
+    // @PutMapping("/{id}")
+    // @Operation(summary = "Replace an existing cart", description = "Replaces an existing cart record matching the
+    // id.")
+    // public ResponseEntity<CartResponse> replaceCart(@PathVariable Long id, @Valid @RequestBody CartUpdateRequest req)
+    // {
+    //     return ResponseEntity.ok(service.replaceCart(id, req));
+    // }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete an existing cart", description = "Delete a cart matching id record from the database.")
+    public ResponseEntity<Void> deleteCart(@PathVariable Long id) {
+        service.deleteCart(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -7,11 +7,18 @@
 package cl.duoc.carts.service;
 
 import cl.duoc.carts.dto.request.CartCreationRequest;
+import cl.duoc.carts.dto.request.CartItemCreationRequest;
 import cl.duoc.carts.dto.response.CartResponse;
+import cl.duoc.carts.dto.response.NonDetailsCartResponse;
 import cl.duoc.carts.exception.CartNotFoundException;
 import cl.duoc.carts.exception.CustomerCartNotFoundException;
 import cl.duoc.carts.mapper.DtoModelMapper;
+import cl.duoc.carts.model.Cart;
+import cl.duoc.carts.model.CartItem;
+import cl.duoc.carts.repository.CartItemRepository;
 import cl.duoc.carts.repository.CartRepository;
+import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,33 +30,58 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class CartService {
-    private final CartRepository repo;
+    private final CartRepository cartRepo;
+    private final CartItemRepository itemRepo;
 
     private final DtoModelMapper mapper;
-
-    public List<CartResponse> findAll() {
-        return repo.findAll().stream().map(mapper::toCartResponse).toList();
-    }
 
     private void logRequest(String msg) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         log.info(msg + " by user " + auth.getName());
     }
 
+    public List<NonDetailsCartResponse> findAll() {
+        return cartRepo.findAll().stream().map(mapper::toNonDetailsCartResponse).toList();
+    }
+
     public CartResponse findById(Long id) {
         logRequest("Starting findById with id: " + id);
-        return repo.findById(id).map(mapper::toCartResponse).orElseThrow(() -> new CartNotFoundException(id));
+        return cartRepo.findById(id)
+                .map(cart -> {
+                    List<CartItem> items = itemRepo.findByCartId(cart.getId());
+                    return mapper.toCartResponse(cart, items);
+                })
+                .orElseThrow(() -> new CartNotFoundException(id));
     }
 
     public CartResponse findByCustomer(Long customerId) {
         logRequest("Starting findByCustomer with customer id: " + customerId);
-        return mapper.toCartResponse(
-                repo.findByCustomer(customerId).orElseThrow(() -> new CustomerCartNotFoundException(customerId)));
+        return cartRepo.findByCustomer(customerId)
+                .map(cart -> {
+                    List<CartItem> items = itemRepo.findByCartId(cart.getId());
+                    return mapper.toCartResponse(cart, items);
+                })
+                .orElseThrow(() -> new CustomerCartNotFoundException(customerId));
     }
 
-    public CartResponse createCart(CartCreationRequest req) {
+    public NonDetailsCartResponse createCart(CartCreationRequest req) {
         logRequest("Starting createCart with customer id: " + req.getCustomerId());
-        repo.findByCustomer(req.getCustomerId()).ifPresent(repo::delete);
-        return mapper.toCartResponse(repo.save(mapper.cartFromCreationRequest(req)));
+        cartRepo.findByCustomer(req.getCustomerId()).ifPresent(cartRepo::delete);
+        return mapper.toNonDetailsCartResponse(cartRepo.save(mapper.cartFromCreationRequest(req)));
+    }
+
+    @Transactional
+    public CartResponse addItem(Long cartId, CartItemCreationRequest req) {
+        logRequest("Starting addItem with cart id: " + cartId);
+        Cart cart = cartRepo.findById(cartId).orElseThrow(() -> new CartNotFoundException(cartId));
+        cart.getItems().add(mapper.cartItemFromCreationRequest(cart, req));
+        cart.setUpdatedAt(LocalDateTime.now());
+        return mapper.toCartResponse(cartRepo.saveAndFlush(cart), cart.getItems());
+    }
+
+    @Transactional
+    public void deleteCart(Long id) {
+        Cart cart = cartRepo.findById(id).orElseThrow(() -> new CartNotFoundException(id));
+        cartRepo.delete(cart);
     }
 }
