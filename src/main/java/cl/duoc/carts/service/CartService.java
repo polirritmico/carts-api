@@ -23,12 +23,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class CartService {
-    private final CartRepository cartRepo;
+    private final CartRepository repo;
 
     private final DtoModelMapper mapper;
 
     public List<CartResponse> findAll() {
-        return cartRepo.findAll().stream().map(mapper::toCartResponse).toList();
+        return repo.findAll().stream().map(mapper::toCartResponse).toList();
     }
 
     private void logRequest(String msg) {
@@ -38,17 +38,18 @@ public class CartService {
 
     public CartResponse findById(Long id) {
         logRequest("Starting findById with id: " + id);
-        return cartRepo.findById(id).map(mapper::toCartResponse).orElseThrow(() -> new CartNotFoundException(id));
+        return repo.findById(id).map(mapper::toCartResponse).orElseThrow(() -> new CartNotFoundException(id));
     }
 
     public CartResponse findByCustomer(Long customerId) {
         logRequest("Starting findByCustomer with customer id: " + customerId);
         return mapper.toCartResponse(
-                cartRepo.findByCustomer(customerId).orElseThrow(() -> new CustomerCartNotFoundException(customerId)));
+                repo.findByCustomer(customerId).orElseThrow(() -> new CustomerCartNotFoundException(customerId)));
     }
 
     public CartResponse createCart(CartCreationRequest req) {
         logRequest("Starting createCart with customer id: " + req.getCustomerId());
-        return mapper.toCartResponse(cartRepo.save(mapper.cartFromCreationRequest(req)));
+        repo.findByCustomer(req.getCustomerId()).ifPresent(repo::delete);
+        return mapper.toCartResponse(repo.save(mapper.cartFromCreationRequest(req)));
     }
 }

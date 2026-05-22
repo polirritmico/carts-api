@@ -10,6 +10,7 @@ import cl.duoc.carts.dto.request.CartCreationRequest;
 import cl.duoc.carts.dto.response.CartResponse;
 import cl.duoc.carts.service.CartService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api/v1/carts")
@@ -35,26 +37,31 @@ public class CartController {
         return ResponseEntity.ok(service.findAll());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{cartId}")
     @Operation(summary = "Find cart by ID", description = "Retrieves a specific cart using its unique identifier.")
-    public ResponseEntity<CartResponse> findCart(@PathVariable Long id) {
-        return ResponseEntity.ok(service.findById(id));
+    public ResponseEntity<CartResponse> findCart(@PathVariable Long cartId) {
+        return ResponseEntity.ok(service.findById(cartId));
     }
 
-    @GetMapping("/customer/{id}")
+    @GetMapping("/customer/{customerId}")
     @Operation(
             summary = "Find cart by the customer ID",
             description = "Retrieves a specific cart using its customer unique identifier.")
-    public ResponseEntity<CartResponse> findCustomerCart(@PathVariable Long id) {
-        return ResponseEntity.ok(service.findByCustomer(id));
+    public ResponseEntity<CartResponse> findCustomerCart(@PathVariable Long customerId) {
+        return ResponseEntity.ok(service.findByCustomer(customerId));
     }
 
     @PostMapping
     @Operation(
             summary = "Create a new cart",
-            description =
-                    "Persists a new cart record into the database. If the customer already has a cart, it removes the old one.")
+            description = "Creates a new cart record, replacing any existing customer cart.")
+    @ApiResponse(responseCode = "201", description = "Cart created successfully")
     public ResponseEntity<CartResponse> createCart(@Valid @RequestBody CartCreationRequest req) {
-        return ResponseEntity.ok(service.createCart(req));
+        CartResponse res = service.createCart(req);
+        return ResponseEntity.created(ServletUriComponentsBuilder.fromCurrentRequest()
+                        .path("{cartId}")
+                        .buildAndExpand(res.getId())
+                        .toUri())
+                .body(res);
     }
 }
