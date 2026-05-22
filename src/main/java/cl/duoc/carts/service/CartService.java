@@ -105,7 +105,7 @@ public class CartService {
         logRequest("Starting deleteCartItems with cart id: " + cartId + " and item id: " + itemId);
         Cart cart = cartRepo.findById(cartId).orElseThrow(() -> new CartNotFoundException(cartId));
         if (!cart.getItems().removeIf(item -> item.getId().equals(itemId))) {
-            throw new CartItemNotFoundException(cartId, itemId);
+            throw new CartItemNotFoundException(itemId, cartId);
         }
         return mapper.toCartResponse(cart);
     }
