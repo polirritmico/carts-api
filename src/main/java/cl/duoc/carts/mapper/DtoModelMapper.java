@@ -6,8 +6,10 @@
  */
 package cl.duoc.carts.mapper;
 
+import cl.duoc.carts.dto.request.CartCreationRequest;
 import cl.duoc.carts.dto.response.CartResponse;
 import cl.duoc.carts.model.Cart;
+import cl.duoc.carts.model.CartStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -25,18 +27,10 @@ public class DtoModelMapper {
                 .build();
     }
 
-    // public Cart cartFromCreationRequest(CartCreationRequest req) {
-    //     return Cart.builder()
-    //             .customerId(req.getCustomerId())
-    //             .createdAt(LocalDateTime.now())
-    //             .build();
-    // }
-
-    // public Cart saleFromUpdateRequest(CartUpdateRequest req) {
-    //     return Cart.builder()
-    //             .customerId(req.getCustomerId())
-    //             .createdAt(LocalDateTime.now())
-    //             .build();
-    // }
-
+    public Cart cartFromCreationRequest(CartCreationRequest req) {
+        return Cart.builder()
+                .customer(req.getCustomerId())
+                .status(CartStatus.ACTIVE)
+                .build();
+    }
 }

@@ -50,6 +50,7 @@ public class Cart {
     @Column
     private LocalDateTime updatedAt;
 
+    @Builder.Default
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<CartItem> items = new ArrayList<>();
 }

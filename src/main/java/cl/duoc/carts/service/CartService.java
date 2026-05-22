@@ -6,8 +6,10 @@
  */
 package cl.duoc.carts.service;
 
+import cl.duoc.carts.dto.request.CartCreationRequest;
 import cl.duoc.carts.dto.response.CartResponse;
 import cl.duoc.carts.exception.CartNotFoundException;
+import cl.duoc.carts.exception.CustomerCartNotFoundException;
 import cl.duoc.carts.mapper.DtoModelMapper;
 import cl.duoc.carts.repository.CartRepository;
 import java.util.List;
@@ -39,10 +41,14 @@ public class CartService {
         return cartRepo.findById(id).map(mapper::toCartResponse).orElseThrow(() -> new CartNotFoundException(id));
     }
 
-    public List<CartResponse> findByCustomer(Long customerId) {
+    public CartResponse findByCustomer(Long customerId) {
         logRequest("Starting findByCustomer with customer id: " + customerId);
-        return cartRepo.findByCustomer(customerId).stream()
-                .map(mapper::toCartResponse)
-                .toList();
+        return mapper.toCartResponse(
+                cartRepo.findByCustomer(customerId).orElseThrow(() -> new CustomerCartNotFoundException(customerId)));
+    }
+
+    public CartResponse createCart(CartCreationRequest req) {
+        logRequest("Starting createCart with customer id: " + req.getCustomerId());
+        return mapper.toCartResponse(cartRepo.save(mapper.cartFromCreationRequest(req)));
     }
 }
