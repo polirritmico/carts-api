@@ -8,6 +8,7 @@ package cl.duoc.carts.controller;
 
 import cl.duoc.carts.dto.request.CartCreationRequest;
 import cl.duoc.carts.dto.request.CartItemCreationRequest;
+import cl.duoc.carts.dto.response.CartItemResponse;
 import cl.duoc.carts.dto.response.CartResponse;
 import cl.duoc.carts.dto.response.NonDetailsCartResponse;
 import cl.duoc.carts.service.CartService;
@@ -38,6 +39,14 @@ public class CartController {
     @Operation(summary = "List all carts", description = "Retrieves a full list of all recorded carts in the system.")
     public ResponseEntity<List<NonDetailsCartResponse>> findAllCarts() {
         return ResponseEntity.ok(service.findAll());
+    }
+
+    @GetMapping("/items")
+    @Operation(
+            summary = "List all cart items",
+            description = "Retrieves a full list of all recorded items in the system.")
+    public ResponseEntity<List<CartItemResponse>> findAllCartItems() {
+        return ResponseEntity.ok(service.findAllItems());
     }
 
     @GetMapping("/{cartId}")

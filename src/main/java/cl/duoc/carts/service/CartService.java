@@ -8,6 +8,7 @@ package cl.duoc.carts.service;
 
 import cl.duoc.carts.dto.request.CartCreationRequest;
 import cl.duoc.carts.dto.request.CartItemCreationRequest;
+import cl.duoc.carts.dto.response.CartItemResponse;
 import cl.duoc.carts.dto.response.CartResponse;
 import cl.duoc.carts.dto.response.NonDetailsCartResponse;
 import cl.duoc.carts.exception.CartItemNotFoundException;
@@ -43,6 +44,10 @@ public class CartService {
 
     public List<NonDetailsCartResponse> findAll() {
         return cartRepo.findAll().stream().map(mapper::toNonDetailsCartResponse).toList();
+    }
+
+    public List<CartItemResponse> findAllItems() {
+        return itemRepo.findAll().stream().map(mapper::toCartItemResponse).toList();
     }
 
     public CartResponse findById(Long id) {
