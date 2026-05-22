@@ -9,6 +9,7 @@ package cl.duoc.carts.controller;
 import cl.duoc.carts.dto.request.CartCreationRequest;
 import cl.duoc.carts.dto.request.CartItemCreationRequest;
 import cl.duoc.carts.dto.request.CartItemUpdateRequest;
+import cl.duoc.carts.dto.request.CartStatusUpdateRequest;
 import cl.duoc.carts.dto.response.CartItemResponse;
 import cl.duoc.carts.dto.response.CartResponse;
 import cl.duoc.carts.dto.response.NonDetailsCartResponse;
@@ -22,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -79,6 +81,15 @@ public class CartController {
                 .body(res);
     }
 
+    @PatchMapping("/{cartId}")
+    @Operation(
+            summary = "Update cart status",
+            description = "Updates the top-level state of the cart, such as changing it to CHECKED_OUT.")
+    public ResponseEntity<NonDetailsCartResponse> patchCartStatus(
+            @PathVariable Long cartId, @Valid @RequestBody CartStatusUpdateRequest req) {
+        return ResponseEntity.ok(service.updateCartStatus(cartId, req));
+    }
+
     @PostMapping("/{cartId}/items")
     @Operation(summary = "Add items to the cart", description = "")
     public ResponseEntity<CartResponse> addItem(
@@ -93,7 +104,7 @@ public class CartController {
 
     @PutMapping("/{cartId}/items/{itemId}")
     @Operation(
-            summary = "Replace an existing cart",
+            summary = "Replace an existing cart item",
             description = "Updates the details of a specific item inside the cart, such as its quantity.")
     public ResponseEntity<CartResponse> updateItem(
             @PathVariable Long cartId, @PathVariable Long itemId, @Valid @RequestBody CartItemUpdateRequest req) {
