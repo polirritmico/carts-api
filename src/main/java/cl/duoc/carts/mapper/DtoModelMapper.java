@@ -78,12 +78,4 @@ public class DtoModelMapper {
                 .price(req.getPrice())
                 .build();
     }
-
-    // public Cart saleFromUpdateRequest(CartUpdateRequest req) {
-    //     return Cart.builder()
-    //             .customerId(req.getCustomerId())
-    //             .createdAt(LocalDateTime.now())
-    //             .build();
-    // }
-
 }
