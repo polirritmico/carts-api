@@ -188,10 +188,8 @@ class CartServiceTest {
         when(cartRepo.saveAndFlush(cart)).thenReturn(cart);
         when(mapper.toCartResponse(cart, cart.getItems())).thenReturn(response);
 
-        // WHEN.
         CartResponse result = cartService.addItem(1L, request);
 
-        // THEN.
         assertThat(result).isNotNull();
         assertThat(cart.getItems()).containsExactly(item);
         assertThat(cart.getUpdatedAt()).isNotNull();
