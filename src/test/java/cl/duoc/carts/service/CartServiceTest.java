@@ -84,7 +84,6 @@ class CartServiceTest {
 
     @Test
     void createCart_debeCrearCarroYEliminarCarroAnteriorDelCliente() {
-        // GIVEN.
         CartCreationRequest request = new CartCreationRequest(10L);
         Cart existingCart = crearCart();
         Cart newCart = Cart.builder().customer(10L).status(CartStatus.ACTIVE).build();
@@ -100,10 +99,8 @@ class CartServiceTest {
         when(cartRepo.save(newCart)).thenReturn(savedCart);
         when(mapper.toNonDetailsCartResponse(savedCart)).thenReturn(response);
 
-        // WHEN.
         NonDetailsCartResponse result = cartService.createCart(request);
 
-        // THEN.
         assertThat(result).isNotNull();
         assertThat(result.getCustomer()).isEqualTo(10L);
         assertThat(result.getStatus()).isEqualTo("ACTIVE");
@@ -113,7 +110,6 @@ class CartServiceTest {
 
     @Test
     void findById_debeRetornarCarroConItemsCuandoExiste() {
-        // GIVEN.
         Cart cart = crearCart();
         CartItem item = crearItem(cart);
         CartResponse response = CartResponse.builder()
@@ -127,10 +123,8 @@ class CartServiceTest {
         when(itemRepo.findByCartId(1L)).thenReturn(List.of(item));
         when(mapper.toCartResponse(cart, List.of(item))).thenReturn(response);
 
-        // WHEN.
         CartResponse result = cartService.findById(1L);
 
-        // THEN.
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(1L);
         assertThat(result.getCustomer()).isEqualTo(10L);
@@ -139,17 +133,14 @@ class CartServiceTest {
 
     @Test
     void findById_debeLanzarExcepcionCuandoCarroNoExiste() {
-        // GIVEN.
         when(cartRepo.findById(99L)).thenReturn(Optional.empty());
 
-        // WHEN + THEN.
         assertThatThrownBy(() -> cartService.findById(99L)).isInstanceOf(CartNotFoundException.class);
         verify(itemRepo, never()).findByCartId(any());
     }
 
     @Test
     void updateCartStatus_debeActualizarEstadoCuandoExiste() {
-        // GIVEN.
         Cart cart = crearCart();
         CartStatusUpdateRequest request = new CartStatusUpdateRequest(CartStatus.CHECKED_OUT);
         NonDetailsCartResponse response = NonDetailsCartResponse.builder()
@@ -161,10 +152,8 @@ class CartServiceTest {
         when(cartRepo.findById(1L)).thenReturn(Optional.of(cart));
         when(mapper.toNonDetailsCartResponse(cart)).thenReturn(response);
 
-        // WHEN.
         NonDetailsCartResponse result = cartService.updateCartStatus(1L, request);
 
-        // THEN.
         assertThat(result.getStatus()).isEqualTo("CHECKED_OUT");
         assertThat(cart.getStatus()).isEqualTo(CartStatus.CHECKED_OUT);
         assertThat(cart.getUpdatedAt()).isNotNull();
@@ -172,7 +161,6 @@ class CartServiceTest {
 
     @Test
     void addItem_debeAgregarItemAlCarroCuandoExiste() {
-        // GIVEN.
         Cart cart = crearCart();
         CartItemCreationRequest request = new CartItemCreationRequest(100L, 2, 5000);
         CartItem item = crearItem(cart);
